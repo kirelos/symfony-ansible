@@ -1,0 +1,24 @@
+---
+domain: "domain.com"
+host: "backend.domain.com"
+sym_user: "user"
+repo: "git@github.com:symfony/demo.git"
+branch: "master"
+
+path: "/opt/{{ host }}"
+mysql_host: "127.0.0.1"
+mysql_port: "3306"
+sym_db_host: "localhost"
+sym_db_name: "{{ sym_user }}_db"
+sym_db_user: "{{ sym_user }}_user"
+sym_db_password: "Strong_Password"
+
+php_version: "7.4"
+cf_api_key: "xxxYYYzzzAAAA"
+cf_api_email: "mail@domain.com"
+enable_cf: "no"
+
+installer: "/tmp/installer.php"
+symfony: "/usr/bin/php{{ php_version }} {{ path }}/{{ sym_user }}/bin/console"
+cache_path: "{{ path }}/{{ sym_user }}/var/cache"
+logs_path: "{{ path }}/{{ sym_user }}/var/log"
