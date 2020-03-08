@@ -1,0 +1,7 @@
+[all]
+
+sym-backend    ansible_host=[IP_ADDR]    ansible_port=[SSH_PORT]  ansible_user=root
+
+## Use Python 3 interpreter to make it works with Debian 9/Ubuntu 16.04 or newer.
+
+sym-backend    ansible_host=[IP_ADDR]    ansible_port=[SSH_PORT]  ansible_user=root  ansible_python_interpreter=/usr/bin/python3
