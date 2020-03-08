@@ -1,0 +1,8 @@
+    
+    - name: Create php{{ php_version }}-fpm pool for {{ sym_user }}
+      template: src=php.conf.j2 dest=/etc/php/{{ php_version }}/fpm/pool.d/{{ sym_user }}.conf
+
+    - name: ensure php{{ php_version }}-fpm is running
+      service:
+        name: php{{ php_version }}-fpm
+        state: restarted
