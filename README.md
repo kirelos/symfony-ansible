@@ -1,4 +1,6 @@
 # Symfony Ansible
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Galaxy](https://img.shields.io/badge/galaxy-kirelos.symfony__ansible-blue.svg)](https://galaxy.ansible.com/kirelos/symfony_ansible)
+
 Automated deployment for symfony application using ansible on `Debian 9`, `Ubuntu 18.04` and newer releases.
 
 ## What this script is really do:
@@ -15,6 +17,13 @@ Automated deployment for symfony application using ansible on `Debian 9`, `Ubunt
 5. MySQL
 
 Note: this playbook tested on Symfony 4 project.
+
+## Installation
+
+### Install from Ansible Galaxy
+```sh
+ansible-galaxy install kirelos.symfony_ansible
+```
 
 ## Variables
 Please change the variables before using this playbook `vars/vars.yml`
