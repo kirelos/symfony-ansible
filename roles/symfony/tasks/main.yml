@@ -1,0 +1,131 @@
+ 
+    - name: Add group {{ sym_user }}
+      group: name={{ sym_user }}
+
+    - name: Add user {{ sym_user }}
+      user: 
+        name: "{{ sym_user }}" 
+        group: "{{ sym_user }}"
+        home: "{{ path }}"
+        shell: /bin/bash
+
+    - name: Create .ssh folder for {{ sym_user }}
+      file:
+        path: "{{ path }}/.ssh"
+        state: directory
+        owner: "{{ sym_user }}"
+        group: "{{ sym_user }}"
+        mode: 0700
+        
+    - name: Upload SSH key for {{ sym_user }}
+      template:
+        src: id_rsa.j2
+        dest: "{{ path }}/.ssh/id_rsa"
+        owner: "{{ sym_user }}"
+        group: "{{ sym_user }}"
+        mode: 0600
+        
+    - name: Clone from project repo
+      git:
+        repo: "{{ repo }}"
+        dest: "{{ path }}/{{ sym_user }}"
+        version: "{{ branch }}"
+        clone: yes
+        update: no
+        accept_hostkey: yes
+        key_file: "{{ path }}/.ssh/id_rsa"
+      become: yes
+      become_user: "{{ sym_user }}"
+
+    - name: Gather package facts
+      package_facts:
+        manager: apt
+        
+    - name: Install the Python MySQL module
+      apt: name=python3-mysqldb update_cache=yes state=present
+      when: '"python3-mysqldb" not in ansible_facts.packages'
+
+    - name: Create database
+      mysql_db: name={{ sym_db_name }} state=present
+
+    - name: Create database user
+      mysql_user: name={{ sym_db_user }} password={{ sym_db_password }} priv={{ sym_db_name }}.*:ALL host='{{ sym_db_host }}' state=present
+
+    - name: Copy Symfony config file
+      template:
+        src: env.j2
+        dest: "{{ path }}/{{ sym_user }}/.env.local"
+        owner: "{{ sym_user }}"
+        group: "{{ sym_user }}"
+        mode: 0755
+
+    - name: Check if Composer is installed
+      tags: Composer
+      stat:
+        path: "/usr/local/bin/composer"
+      register: composer_binary
+      
+    - name: Download composer
+      get_url:
+        url: https://getcomposer.org/installer
+        dest: "{{ installer }}"
+      when: composer_binary.stat.exists == false
+        
+    - name: Install composer
+      command: "{{ item }}"
+      with_items:
+        - "php {{ installer }}"
+        - mv composer.phar /usr/local/bin/composer
+      when: composer_binary.stat.exists == false
+        
+    - name: Remove composer installer
+      file:
+        path: "{{ installer }}"
+        state: absent
+      when: composer_binary.stat.exists == false
+        
+    - name: Downloads and installs all the libs and dependencies
+      composer:
+        command: install
+        working_dir: "{{ path }}/{{ sym_user }}"
+        php_path: "/usr/bin/php{{ php_version }}"
+      become: yes
+      become_user: "{{ sym_user }}"
+      ignore_errors: yes
+      
+    - name: Execute migrations
+      command: "{{ symfony }} doctrine:migrations:migrate --no-interaction"
+      become: yes
+      become_user: "{{ sym_user }}"
+      ignore_errors: yes
+      
+    - name: Load data fixtures
+      command: "{{ symfony }} doctrine:fixtures:load --env=dev --no-interaction"
+      become: yes
+      become_user: "{{ sym_user }}"
+      ignore_errors: yes
+    
+    - name: Change permissions for cache directory
+      file:
+        path: "{{ cache_path }}"
+        owner: "{{ sym_user }}"
+        group: "{{ sym_user }}"
+        mode: 0777
+        recurse: yes
+    
+    - name: Change permissions for logs directory
+      file:
+        path: "{{ logs_path }}"
+        owner: "{{ sym_user }}"
+        group: "{{ sym_user }}"
+        mode: 0777
+        recurse: yes
+
+    - name: Install ACL
+      apt: name=acl update_cache=yes state=present
+
+    - name: Change permissions for logs and cache with ACL
+      command: "{{ item }} {{ cache_path }} {{ logs_path }}"
+      with_items:
+        setfacl -dR -m u:www-data:rwX -m u:{{ sym_user }}:rwX
+        setfacl -R -m u:www-data:rwX -m u:{{ sym_user }}:rwX
