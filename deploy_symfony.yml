@@ -1,0 +1,12 @@
+---
+ - hosts: all
+   vars_files:
+      - ./vars/vars.yml
+   gather_facts: no
+   become: yes
+   become_user: root
+   roles:
+     - cloudflare
+     - symfony
+     - fpm-pool
+     - nginx-vhost-symfony
