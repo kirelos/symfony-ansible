@@ -1,0 +1,22 @@
+galaxy_info:
+  author: 'Kirelos Mickael'
+  description: 'Automated deployment for symfony application using ansible'
+  license: 'GPLv3'
+  min_ansible_version: 2.9
+  platforms:
+   - name: EL
+     versions:
+      - 7
+   - name: Debian
+     versions:
+      - stretch
+      - buster
+   - name: Ubuntu
+     versions:
+      - xenial
+      - bionic
+  galaxy_tags: 
+   - symfony
+   - nginx
+   - cloudflare
+   - php-fpm
