@@ -1,0 +1,10 @@
+    - name: creating Cloudflare A record to point to the server
+      cloudflare_dns:
+        zone={{ domain }}
+        record={{ host }}
+        type=A
+        value={{ ansible_host }}
+        proxied={{ enable_cf }}
+        account_email={{ cf_api_email }}
+        account_api_token={{ cf_api_key }}
+      register: record 
