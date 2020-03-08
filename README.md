@@ -59,3 +59,8 @@ Please change the variables before using this playbook `vars/vars.yml`
 ```sh
 ansible-playbook -i hosts_inventory deploy_symfony.yml
 ```
+## License
+GPL v3.0
+
+## How to Contribute
+Fork > Do your magic > Test > Pull request
